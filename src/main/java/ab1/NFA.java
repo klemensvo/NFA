@@ -1,25 +1,25 @@
 package ab1;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
- * The {@code NFA} interface represents a Non-deterministic Finite Automaton (NFA) and provides methods to manipulate NFAs as well as 
- * run words against the NFA to check if they are in the language or not.
- * 
- * The NFA has two states: edit and accept. While in edit-state, new transitions and accepting states can be added until finalizeAutomaton() is 
- * called. If a method is called in the wrong state, a {@code FinalizedStateException} should be thrown.
+ * The {@code NFA} interface represents a Non-deterministic Finite Automaton (NFA) and provides methods to manipulate
+ * NFAs as well as run words against the NFA to check if they are in the language or not. The NFA has two states:
+ * edit and accept. While in edit-state, new transitions and accepting states can be added until
+ * {@link #finalizeAutomaton()} is called. If a method is called in the wrong state, a {@link FinalizedStateException}
+ * should be thrown.
  */
 public interface NFA {
 
     /**
      * @return all states present in the automata
      */
-    Set<String> getStates();
+    Collection<String> getStates();
 
     /**
      * @return all states present in the automata, marked as accepting state
      */
-    Set<String> getAcceptingStates();
+    Collection<String> getAcceptingStates();
 
     /**
      * @return initial state of the automata. This cannot change over the lifetime of the object
@@ -99,7 +99,7 @@ public interface NFA {
     void finalizeAutomaton();
 
     /**
-     * @return if the language of this automaton is finite or infinite.
+     * @return whether the language of this automaton is finite or infinite.
      */
     boolean isFinite();
 

@@ -2,6 +2,13 @@ package ab1;
 
 import java.util.Set;
 
+/**
+ * The {@code NFA} interface represents a Non-deterministic Finite Automaton (NFA) and provides methods to manipulate NFAs as well as 
+ * run words against the NFA to check if they are in the language or not.
+ * 
+ * The NFA has two states: edit and accept. While in edit-state, new transitions and accepting states can be added until finalizeAutomaton() is 
+ * called. If a method is called in the wrong state, a {@code FinalizedStateException} should be thrown.
+ */
 public interface NFA {
 
     /**
@@ -24,7 +31,7 @@ public interface NFA {
      *
      * @param transition information about the new transition. If the automaton already has a transition for the
      *                   given fromState and readSymbol, it should be replaced by the provided one.
-     * @throws FinalizedStateException if {@link #isFinalized()} was already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was already called
      */
     void addTransition(Transition transition) throws FinalizedStateException;
 
@@ -32,7 +39,7 @@ public interface NFA {
      * Flag a state to be an accepting state. If the state was accepting before, nothing changes.
      *
      * @param state - label of the new accepting state
-     * @throws FinalizedStateException if {@link #isFinalized()} was already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was already called
      */
     void addAcceptingState(String state) throws FinalizedStateException;
 
@@ -40,7 +47,7 @@ public interface NFA {
      * @param other any NFA
      * @return a new NFA instance that accepts the language L(return) = L(this) ∪ L(other).
      * other. Both, other and this NFA must not change during this operation.
-     * @throws FinalizedStateException if {@link #isFinalized()} was not already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was not already called
      */
     NFA union(NFA other) throws FinalizedStateException;
 
@@ -48,7 +55,7 @@ public interface NFA {
      * @param other - any NFA
      * @return a new NFA instance that accepts the language L(return) = L(this) ∩ L(other).
      * Both, other and this NFA must not change during this operation.
-     * @throws FinalizedStateException if {@link #isFinalized()} was not already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was not already called
      */
     NFA intersection(NFA other) throws FinalizedStateException;
 
@@ -56,28 +63,28 @@ public interface NFA {
      * @param other - any NFA
      * @return a new NFA instance that accepts the language L(return) = L(this) + L(other).
      * Both, other and this NFA must not change during this operation.
-     * @throws FinalizedStateException if {@link #isFinalized()} was not already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was not already called
      */
     NFA concatenation(NFA other) throws FinalizedStateException;
 
     /**
      * @return a new NFA instance that accepts the language L(this)*.
      * This NFA must not change during the operation.
-     * @throws FinalizedStateException if {@link #isFinalized()} was not already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was not already called
      */
     NFA kleeneStar() throws FinalizedStateException;
 
     /**
      * @return a new NFA instance that accepts the language L(this)⁺.
      * This NFA must not change during the operation.
-     * @throws FinalizedStateException if {@link #isFinalized()} was not already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was not already called
      */
     NFA plusOperator() throws FinalizedStateException;
 
     /**
      * @return a new NFA instance that accepts the complement of L(this).
      * This NFA must not change during the operation.
-     * @throws FinalizedStateException if {@link #isFinalized()} was not already called
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was not already called
      */
     NFA complement() throws FinalizedStateException;
 

@@ -12,9 +12,14 @@ import java.util.Collection;
 public interface NFA {
 
     /**
-     * @return all states present in the automata
+     * @return all states present in the automaton
      */
     Collection<String> getStates();
+
+    /**
+     * @return all transitions currently configured in the automaton
+     */
+    Collection<Transition> getTransitions();
 
     /**
      * @return all states present in the automata, marked as accepting state
@@ -30,7 +35,7 @@ public interface NFA {
      * Add a new transition to the automata.
      *
      * @param transition information about the new transition. If the automaton already has a transition for the
-     *                   given fromState and readSymbol, it should be replaced by the provided one.
+     *                   given fromState and readSymbol, it should be added nonetheless.
      * @throws FinalizedStateException if {@link #finalizeAutomaton()} was already called
      */
     void addTransition(Transition transition) throws FinalizedStateException;
@@ -106,6 +111,7 @@ public interface NFA {
     /**
      * @param word - word to check, can be empty
      * @return true, iff the word lies in the language of the automaton
+     * @throws FinalizedStateException if {@link #finalizeAutomaton()} was not already called
      */
-    boolean acceptsWord(String word);
+    boolean acceptsWord(String word) throws FinalizedStateException;
 }

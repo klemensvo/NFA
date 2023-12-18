@@ -4,11 +4,17 @@ import ab1.FinalizedStateException;
 import ab1.NFA;
 import ab1.Transition;
 
+import java.util.Collection;
 import java.util.Set;
 
 public class NFAImpl implements NFA {
     @Override
     public Set<String> getStates() {
+        return null;
+    }
+
+    @Override
+    public Collection<Transition> getTransitions() {
         return null;
     }
 

@@ -9,8 +9,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class NFAImpl implements NFA {
+    String initialState;
     Set<String> states = new HashSet<>();
     Set<String> acceptingStates = new HashSet<>();
+
+    public NFAImpl(String initialState) {
+        this.initialState = initialState;
+    }
+
     @Override
     public Set<String> getStates() {
         return states;
@@ -28,7 +34,7 @@ public class NFAImpl implements NFA {
 
     @Override
     public String getInitialState() {
-        return null;
+        return initialState;
     }
 
     @Override

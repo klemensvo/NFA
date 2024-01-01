@@ -75,13 +75,11 @@ public class CustomTests {
         assertEquals(2, instance.getStates().size());
     }
 
-    /*
     @Test
     public void initialStateTest() {
         var instance = factory.buildNFA("START");
 
         assertEquals("START", instance.getInitialState());
     }
-    */
 
 }

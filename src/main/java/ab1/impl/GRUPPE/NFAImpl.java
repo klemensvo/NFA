@@ -9,10 +9,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class NFAImpl implements NFA {
+    Set<String> states = new HashSet<>();
     Set<String> acceptingStates = new HashSet<>();
     @Override
     public Set<String> getStates() {
-        return null;
+        return states;
     }
 
     @Override
@@ -32,12 +33,15 @@ public class NFAImpl implements NFA {
 
     @Override
     public void addTransition(Transition transition) throws FinalizedStateException {
-
+        // add any state appearing in fromState or toState to states
+        states.add(transition.fromState());
+        states.add(transition.toState());
     }
 
     @Override
     public void addAcceptingState(String state) throws FinalizedStateException {
         acceptingStates.add(state);
+        states.add(state); // add acceptingStates to states as well
     }
 
     @Override

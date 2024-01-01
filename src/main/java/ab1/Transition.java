@@ -12,3 +12,15 @@ import lombok.Builder;
 @Builder
 public record Transition(String fromState, Character readSymbol, String toState) {
 }
+
+/*
+usage of Transition:
+Transition t = Transition.builder()
+                         .fromState("q0")
+                         .readSymbol('a')
+                         .toState("q1")
+                         .build();
+
+System.out.println("Transition from: " + t.fromState());
+// Will print: "Transition from: q0"
+ */

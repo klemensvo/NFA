@@ -5,9 +5,11 @@ import ab1.NFA;
 import ab1.Transition;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 public class NFAImpl implements NFA {
+    Set<String> acceptingStates = new HashSet<>();
     @Override
     public Set<String> getStates() {
         return null;
@@ -20,7 +22,7 @@ public class NFAImpl implements NFA {
 
     @Override
     public Set<String> getAcceptingStates() {
-        return null;
+        return acceptingStates;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class NFAImpl implements NFA {
 
     @Override
     public void addAcceptingState(String state) throws FinalizedStateException {
-
+        acceptingStates.add(state);
     }
 
     @Override

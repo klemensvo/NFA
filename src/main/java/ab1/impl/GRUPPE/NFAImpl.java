@@ -25,11 +25,11 @@ public class NFAImpl implements NFA {
 
     @Override
     public Collection<Transition> getTransitions() {
-        Set<Transition> allTransitions = new HashSet<>();
+        Set<Transition> resultTransitions = new HashSet<>();
         for (Set<Transition> transitionSet : transitions.values()) {
-            allTransitions.addAll(transitionSet);
+            resultTransitions.addAll(transitionSet);
         }
-        return allTransitions;
+        return resultTransitions;
     }
 
     @Override
@@ -75,8 +75,72 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA concatenation(NFA other) throws FinalizedStateException {
+        if (this.isFinalized() || other.isFinalized()) {
+            throw new FinalizedStateException();
+        }
+        NFAImpl concatenatedNFA = new NFAImpl(this.initialState);
+
+        // add all states and translations from first NFA
+        concatenatedNFA.states.addAll(this.states); // addAll for Set
+        concatenatedNFA.transitions.putAll(this.transitions); // putAll for Map
+
+        // accepting states of first NFA are connected to initial state
+        // of the second NFA via an epsilon transition (i.e., null)
+        for (String acceptingState : this.acceptingStates) {
+            concatenatedNFA.transitions.computeIfAbsent(acceptingState,
+                            currentState -> new HashSet<>())
+                    .add(new Transition(acceptingState, null,
+                            other.getInitialState()));
+        }
+
+        // add states and transitions of second NFA, for uniqueness add a prefix first
+        for (String state : other.getStates()) {
+            String uniqueState = "second_" + state;
+            concatenatedNFA.states.add(uniqueState);
+
+            // todo: change transition names to prefix "second_" + transition name
+            // Set<Transition> transitionsOfSecondNFA = other.
+
+            //for (Transition transition : other. */
+        }
+
         return null;
     }
+
+    /* todo delete later
+
+Set<Transition> transitionsForState = ((NFAImpl)other).transitions.getOrDefault(state, Collections.emptySet());
+
+
+    // Paso 4: Copiar los estados y transiciones del segundo NFA
+    for (String state : ((NFAImpl)other).getStates()) {
+        String newState = "second_" + state; // Asegurar nombres únicos
+        concatenatedNFA.states.add(newState);
+
+        for (Transition transition : ((NFAImpl)other).transitions.getOrDefault(state, Collections.emptySet())) {
+            String newToState = "second_" + transition.toState();
+            concatenatedNFA.addTransition(new Transition(newState, transition.readSymbol(), newToState));
+        }
+    }
+    // Iterar sobre cada transición y añadir una transición correspondiente en el nuevo NFA concatenado
+for (Transition transition : transitionsForState) {
+    String newToState = "second_" + transition.toState();
+    concatenatedNFA.addTransition(new Transition(newState, transition.readSymbol(), newToState));
+}
+
+    // Paso 5: Manejar los estados de aceptación
+    concatenatedNFA.acceptingStates.clear(); // Limpiar los antiguos estados de aceptación
+    for (String acceptingState : ((NFAImpl)other).getAcceptingStates()) {
+        concatenatedNFA.acceptingStates.add("second_" + acceptingState);
+    }
+
+    // Paso 6: Finalizar el nuevo NFA
+    concatenatedNFA.finalizeAutomaton();
+
+    return concatenatedNFA;
+}
+
+     */
 
     @Override
     public NFA kleeneStar() throws FinalizedStateException {
@@ -104,7 +168,7 @@ public class NFAImpl implements NFA {
     }
 
     @Override
-    public boolean isFinite() { // todo
+    public boolean isFinite() {
         return false;
     }
 
@@ -126,9 +190,9 @@ public class NFAImpl implements NFA {
             // there is one currentState for each of the non-deterministic paths:
             for (String currentState : currentStates) {
                 Set<Transition> stateTransitions =
-                        transitions.getOrDefault(currentState, Collections.emptySet());
-                        // instead of null, Collections.emptySet() is returned if no
-                        // transitions are defined for the currentState
+                        this.transitions.getOrDefault(currentState, Collections.emptySet());
+                // instead of null, Collections.emptySet() is returned if no
+                // transitions are defined for the currentState
                 for (Transition stateTransition : stateTransitions) {
                     // Only add the stateTransition if it's a valid transition for the symbol
                     if (stateTransition.readSymbol() != null &&
@@ -148,12 +212,13 @@ public class NFAImpl implements NFA {
 
     private Set<String> followEpsilonTransitions(Set<String> states) {
         Set<String> reachableStates = new HashSet<>(states);
-        Set<String> newStates = new HashSet<>(states);
+        Set<String> epsilonStates = new HashSet<>(states);
 
-        while (!newStates.isEmpty()) {
+        while (!epsilonStates.isEmpty()) {
             Set<String> temporaryStates = new HashSet<>();
-            for (String state : newStates) {
-                Set<Transition> stateTransitions = transitions.getOrDefault(state, Collections.emptySet());
+            for (String epsilonState : epsilonStates) {
+                Set<Transition> stateTransitions =
+                        this.transitions.getOrDefault(epsilonState, Collections.emptySet());
                 for (Transition transition : stateTransitions) {
                     if (transition.readSymbol() == null) {
                         if (reachableStates.add(transition.toState())) {
@@ -162,40 +227,10 @@ public class NFAImpl implements NFA {
                     }
                 }
             }
-            newStates = temporaryStates;
+            epsilonStates = temporaryStates;
         }
 
         return reachableStates;
     }
-    /*
-    @Override
-public boolean acceptsWord(String word) {
-    char[] symbols = word.toCharArray();
 
-    Set<String> currentStates = new HashSet<>();
-    currentStates.add(initialState);
-    currentStates = followEpsilonTransitions(currentStates);
-
-    for (char symbol : symbols) {
-        Set<String> nextStates = new HashSet<>();
-
-        for (String state : currentStates) {
-            Set<Transition> stateTransitions = transitions.getOrDefault(state, Collections.emptySet());
-            for (Transition transition : stateTransitions) {
-                if (transition.readSymbol() != null && transition.readSymbol() == symbol) {
-                    // Only add the next state if it's a valid transition for the symbol
-                    nextStates.add(transition.toState());
-                }
-            }
-        }
-        // Follow epsilon transitions from the next states after reading the symbol
-        nextStates = followEpsilonTransitions(nextStates);
-        currentStates = nextStates;
-    }
-
-    // Check if any of the current states are accepting
-    return currentStates.stream().anyMatch(acceptingStates::contains);
-}
-
-     */
 }

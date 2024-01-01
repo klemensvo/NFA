@@ -112,6 +112,84 @@ public class CustomTests {
     }
 
     @Test
+    public void finalizeTest3() {
+        var instance = factory.buildNFA("START");
+
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("START")
+                        .readSymbol('a')
+                        .toState("ACCEPT")
+                        .build()
+        );
+        instance.finalizeAutomaton();
+    }
+
+
+    /*
+    @Test
+    public void finalize4Test() {
+        var instance = factory.buildNFA("START");
+
+        assertThrows(
+                FinalizedStateException.class,
+                instance::kleeneStar
+        );
+    }
+
+    @Test
+    public void finalize5Test() {
+        var instance = factory.buildNFA("START");
+
+        assertThrows(
+                FinalizedStateException.class,
+                instance::plusOperator
+        );
+    }
+
+    @Test
+    public void finalize6Test() {
+        var instance = factory.buildNFA("START");
+
+        assertThrows(
+                FinalizedStateException.class,
+                () -> instance.concatenation(instance)
+        );
+    }
+
+    @Test
+    public void finalize7Test() {
+        var instance = factory.buildNFA("START");
+
+        assertThrows(
+                FinalizedStateException.class,
+                () -> instance.intersection(instance)
+        );
+    }
+
+    @Test
+    public void finalize8Test() {
+        var instance = factory.buildNFA("START");
+
+        assertThrows(
+                FinalizedStateException.class,
+                instance::complement
+        );
+    }
+
+    @Test
+    public void finalize9Test() {
+        var instance = factory.buildNFA("START");
+
+        assertThrows(
+                FinalizedStateException.class,
+                () -> instance.union(instance)
+        );
+    }
+    */
+
+
+    @Test
     public void languageTest1() {
         var instance = factory.buildNFA("START");
         instance.addTransition(
@@ -203,7 +281,6 @@ public class CustomTests {
         assertFalse(instance.acceptsWord("ETI is fun!"));
     }
 
-    /*
     @Test
     public void language4Test() {
         var instance = factory.buildNFA("START");
@@ -233,6 +310,5 @@ public class CustomTests {
         assertFalse(instance.acceptsWord("xyaz"));
         assertFalse(instance.acceptsWord("ETI is fun!"));
     }
-     */
 
 }

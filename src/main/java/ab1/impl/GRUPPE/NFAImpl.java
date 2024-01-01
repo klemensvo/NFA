@@ -110,34 +110,92 @@ public class NFAImpl implements NFA {
 
     @Override
     public boolean acceptsWord(String word) {
-        boolean isAccepted = false;
         char[] symbols = word.toCharArray();
 
         // variable currentStates for all possible states of the
         // non-deterministic automaton
         Set<String> currentStates = new HashSet<>();
         currentStates.add(initialState);
+        // epsilon transitions from initial state:
+        currentStates = followEpsilonTransitions(currentStates);
 
+        //
         for (char symbol : symbols) {
             Set<String> nextStates = new HashSet<>();
-            for (String state : currentStates) {
+
+            // there is one currentState for each of the non-deterministic paths:
+            for (String currentState : currentStates) {
                 Set<Transition> stateTransitions =
-                        transitions.getOrDefault(state, Collections.emptySet());
-                for (Transition transition : stateTransitions) {
-                    if (transition.readSymbol() != null &&
-                            transition.readSymbol() == symbol) {
-                        nextStates.add(transition.toState());
+                        transitions.getOrDefault(currentState, Collections.emptySet());
+                        // instead of null, Collections.emptySet() is returned if no
+                        // transitions are defined for the currentState
+                for (Transition stateTransition : stateTransitions) {
+                    // Only add the stateTransition if it's a valid transition for the symbol
+                    if (stateTransition.readSymbol() != null &&
+                            stateTransition.readSymbol() == symbol) {
+                        nextStates.add(stateTransition.toState());
                     }
                 }
             }
+            // follow newly found epsilon transitions
+            nextStates = followEpsilonTransitions((nextStates));
             currentStates = nextStates;
         }
-        for (String state : currentStates) {
-            if (acceptingStates.contains(state)) {
-                isAccepted = true;
+
+        // accepts if any current state accepts:
+        return currentStates.stream().anyMatch(acceptingStates::contains);
+    }
+
+    private Set<String> followEpsilonTransitions(Set<String> states) {
+        Set<String> reachableStates = new HashSet<>(states);
+        Set<String> newStates = new HashSet<>(states);
+
+        while (!newStates.isEmpty()) {
+            Set<String> temporaryStates = new HashSet<>();
+            for (String state : newStates) {
+                Set<Transition> stateTransitions = transitions.getOrDefault(state, Collections.emptySet());
+                for (Transition transition : stateTransitions) {
+                    if (transition.readSymbol() == null) {
+                        if (reachableStates.add(transition.toState())) {
+                            temporaryStates.add(transition.toState());
+                        }
+                    }
+                }
             }
+            newStates = temporaryStates;
         }
 
-        return isAccepted;
+        return reachableStates;
     }
+    /*
+    @Override
+public boolean acceptsWord(String word) {
+    char[] symbols = word.toCharArray();
+
+    Set<String> currentStates = new HashSet<>();
+    currentStates.add(initialState);
+    currentStates = followEpsilonTransitions(currentStates);
+
+    for (char symbol : symbols) {
+        Set<String> nextStates = new HashSet<>();
+
+        for (String state : currentStates) {
+            Set<Transition> stateTransitions = transitions.getOrDefault(state, Collections.emptySet());
+            for (Transition transition : stateTransitions) {
+                if (transition.readSymbol() != null && transition.readSymbol() == symbol) {
+                    // Only add the next state if it's a valid transition for the symbol
+                    nextStates.add(transition.toState());
+                }
+            }
+        }
+        // Follow epsilon transitions from the next states after reading the symbol
+        nextStates = followEpsilonTransitions(nextStates);
+        currentStates = nextStates;
+    }
+
+    // Check if any of the current states are accepting
+    return currentStates.stream().anyMatch(acceptingStates::contains);
+}
+
+     */
 }

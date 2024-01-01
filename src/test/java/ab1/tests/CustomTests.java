@@ -131,9 +131,8 @@ public class CustomTests {
         assertFalse(instance.acceptsWord("ETI is fun!"));
     }
 
-    /*
     @Test
-    public void language2Test() {
+    public void languageTest2() {
         var instance = factory.buildNFA("START");
         instance.addTransition(
                 Transition.builder()
@@ -163,7 +162,7 @@ public class CustomTests {
     }
 
     @Test
-    public void language3Test() {
+    public void languageTest3() {
         var instance = factory.buildNFA("START");
         instance.addTransition(
                 Transition.builder()
@@ -198,11 +197,13 @@ public class CustomTests {
 
         assertTrue(instance.acceptsWord("a"));
         assertTrue(instance.acceptsWord("b"));
+        assertFalse(instance.acceptsWord("aa"));
         assertFalse(instance.acceptsWord("ba"));
         assertFalse(instance.acceptsWord("xyaz"));
         assertFalse(instance.acceptsWord("ETI is fun!"));
     }
 
+    /*
     @Test
     public void language4Test() {
         var instance = factory.buildNFA("START");

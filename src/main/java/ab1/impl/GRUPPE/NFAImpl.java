@@ -5,11 +5,12 @@ import ab1.NFA;
 import ab1.Transition;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class NFAImpl implements NFA {
-    String initialState;
-    Set<String> states = new HashSet<>();
-    Set<String> acceptingStates = new HashSet<>();
+    final private String initialState;
+    final private Set<String> states = new HashSet<>();
+    final private Set<String> acceptingStates = new HashSet<>();
     final private Map<String, Set<Transition>> transitions = new HashMap<>();
 
     boolean isFinalized = false;
@@ -74,73 +75,67 @@ public class NFAImpl implements NFA {
     }
 
     @Override
-    public NFA concatenation(NFA other) throws FinalizedStateException {
-        if (this.isFinalized() || other.isFinalized()) {
-            throw new FinalizedStateException();
+    public NFA concatenation(NFA otherNFA) throws FinalizedStateException {
+        if (!this.isFinalized() || !otherNFA.isFinalized()) {
+            throw new FinalizedStateException("One or both of the original" +
+                    "two NFAs are not finalized yet");
         }
+
+        // initialise concatenatedNFA and add states and transitions of first NFA
         NFAImpl concatenatedNFA = new NFAImpl(this.initialState);
+        concatenatedNFA.states.addAll(this.states); // addAll for Sets
+        concatenatedNFA.transitions.putAll(this.transitions); // putAll for Maps
 
-        // add all states and translations from first NFA
-        concatenatedNFA.states.addAll(this.states); // addAll for Set
-        concatenatedNFA.transitions.putAll(this.transitions); // putAll for Map
-
-        // accepting states of first NFA are connected to initial state
+        // rename initial state of second NFA, then connect
+        // accepting states of first NFA to initial state
         // of the second NFA via an epsilon transition (i.e., null)
+        String initialStateOfOtherNFA = "second_" + otherNFA.getInitialState();
         for (String acceptingState : this.acceptingStates) {
             concatenatedNFA.transitions.computeIfAbsent(acceptingState,
                             currentState -> new HashSet<>())
                     .add(new Transition(acceptingState, null,
-                            other.getInitialState()));
+                            initialStateOfOtherNFA));
         }
 
-        // add states and transitions of second NFA, for uniqueness add a prefix first
-        for (String state : other.getStates()) {
-            String uniqueState = "second_" + state;
-            concatenatedNFA.states.add(uniqueState);
+        // for uniqueness, add the prefix "second_" to all states and
+        // transitions of second NFA
+        for (String otherNfaState : otherNFA.getStates()) {
+            String uniqueFromState = "second_" + otherNfaState;
+            concatenatedNFA.states.add(uniqueFromState);
+            System.out.println("concatenatedNFA states: " + concatenatedNFA.getStates());
 
-            // todo: change transition names to prefix "second_" + transition name
-            // Set<Transition> transitionsOfSecondNFA = other.
+            // find all transitions from 'state':
+            Set<Transition> otherTransitions = new HashSet<>(otherNFA.getTransitions());
+            Set<Transition> otherStateTransitions = otherTransitions.stream()
+                    .filter(transition -> transition.fromState().equals(otherNfaState))
+                    .collect(Collectors.toSet());
+            System.out.println("concatenatedNFA transitions: " + concatenatedNFA.getTransitions());
 
-            //for (Transition transition : other. */
+            // iterate through all transitions from 'state':
+            for (Transition transition : otherStateTransitions) {
+                String uniqueToState = "second_" + transition.toState();
+                concatenatedNFA.addTransition(new Transition(uniqueFromState,
+                        transition.readSymbol(), uniqueToState));
+            }
         }
 
-        return null;
-    }
-
-    /* todo delete later
-
-Set<Transition> transitionsForState = ((NFAImpl)other).transitions.getOrDefault(state, Collections.emptySet());
-
-
-    // Paso 4: Copiar los estados y transiciones del segundo NFA
-    for (String state : ((NFAImpl)other).getStates()) {
-        String newState = "second_" + state; // Asegurar nombres únicos
-        concatenatedNFA.states.add(newState);
-
-        for (Transition transition : ((NFAImpl)other).transitions.getOrDefault(state, Collections.emptySet())) {
-            String newToState = "second_" + transition.toState();
-            concatenatedNFA.addTransition(new Transition(newState, transition.readSymbol(), newToState));
+        // clear all acceptingStates and only accept
+        // accepting states of the second NFA
+        concatenatedNFA.acceptingStates.clear();
+        System.out.println("acceptingStates cleared: " + concatenatedNFA.getAcceptingStates());
+        for (String acceptingState : otherNFA.getAcceptingStates()) {
+            concatenatedNFA.acceptingStates.add("second_" + acceptingState);
         }
-    }
-    // Iterar sobre cada transición y añadir una transición correspondiente en el nuevo NFA concatenado
-for (Transition transition : transitionsForState) {
-    String newToState = "second_" + transition.toState();
-    concatenatedNFA.addTransition(new Transition(newState, transition.readSymbol(), newToState));
-}
+        // finalize
+        concatenatedNFA.finalizeAutomaton();
 
-    // Paso 5: Manejar los estados de aceptación
-    concatenatedNFA.acceptingStates.clear(); // Limpiar los antiguos estados de aceptación
-    for (String acceptingState : ((NFAImpl)other).getAcceptingStates()) {
-        concatenatedNFA.acceptingStates.add("second_" + acceptingState);
+        if (!isFinalized) {
+            throw new FinalizedStateException("The concatenated NFA is not finalized");
+        }
+
+        return concatenatedNFA;
     }
 
-    // Paso 6: Finalizar el nuevo NFA
-    concatenatedNFA.finalizeAutomaton();
-
-    return concatenatedNFA;
-}
-
-     */
 
     @Override
     public NFA kleeneStar() throws FinalizedStateException {
@@ -212,25 +207,30 @@ for (Transition transition : transitionsForState) {
 
     private Set<String> followEpsilonTransitions(Set<String> states) {
         Set<String> reachableStates = new HashSet<>(states);
-        Set<String> epsilonStates = new HashSet<>(states);
+        Set<String> newStates = new HashSet<>(states);
 
-        while (!epsilonStates.isEmpty()) {
+        // check for visited states to avoid circles caused by circling epsilon transitions
+        Set<String> visitedStates = new HashSet<>(states);
+
+        while (!newStates.isEmpty()) {
             Set<String> temporaryStates = new HashSet<>();
-            for (String epsilonState : epsilonStates) {
-                Set<Transition> stateTransitions =
-                        this.transitions.getOrDefault(epsilonState, Collections.emptySet());
+            for (String epsilonState : newStates) {
+                Set<Transition> stateTransitions = transitions.getOrDefault(epsilonState, Collections.emptySet());
                 for (Transition transition : stateTransitions) {
                     if (transition.readSymbol() == null) {
-                        if (reachableStates.add(transition.toState())) {
-                            temporaryStates.add(transition.toState());
+                        // only follow transitions that haven't been visited before
+                        if (!visitedStates.contains(transition.toState())) {
+                            if (reachableStates.add(transition.toState())) {
+                                temporaryStates.add(transition.toState());
+                                visitedStates.add(transition.toState()); // mark as visited
+                            }
                         }
                     }
                 }
             }
-            epsilonStates = temporaryStates;
+            newStates = temporaryStates;
         }
 
         return reachableStates;
     }
-
 }

@@ -17,7 +17,6 @@ public class CustomTests {
 
         assertEquals(1, instance.getAcceptingStates().size());
         assertTrue(instance.getAcceptingStates().contains("ACCEPT"));
-        System.out.println(instance.getAcceptingStates());
     }
 
     @Test
@@ -40,7 +39,6 @@ public class CustomTests {
         assertEquals(2, instance.getAcceptingStates().size());
         assertTrue(instance.getAcceptingStates().contains("ACCEPT"));
         assertTrue(instance.getAcceptingStates().contains("OTHER_ACCEPT"));
-        System.out.println(instance.getAcceptingStates());
     }
 
     @Test
@@ -308,9 +306,98 @@ public class CustomTests {
         assertFalse(instance.acceptsWord("ETI is fun!"));
     }
 
-    /*
-    @Test // todo: next test
-    public void concatTest1() {
+    @Test
+    public void languageTest5() {
+        var instance = factory.buildNFA("START");
+
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("START")
+                        .readSymbol(null)
+                        .toState("ACCEPT")
+                        .build()
+        );
+        instance.addAcceptingState("ACCEPT");
+        instance.finalizeAutomaton();
+
+        assertTrue(instance.acceptsWord(""));
+        assertFalse(instance.acceptsWord("a"));
+    }
+
+    @Test
+    public void languageTest6() {
+        var instance = factory.buildNFA("START");
+
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("START")
+                        .readSymbol(null)
+                        .toState("ACCEPT")
+                        .build()
+        );
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("START")
+                        .readSymbol('a')
+                        .toState("ACCEPT")
+                        .build()
+        );
+
+        instance.addAcceptingState("ACCEPT");
+        instance.finalizeAutomaton();
+
+        assertTrue(instance.acceptsWord(""));
+        assertTrue(instance.acceptsWord("a"));
+        assertFalse(instance.acceptsWord("ab"));
+        assertFalse(instance.acceptsWord("b"));
+    }
+
+    @Test
+    public void languageTest7() {
+        var instance = factory.buildNFA("START");
+
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("START")
+                        .readSymbol(null)
+                        .toState("ACCEPT")
+                        .build()
+        );
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("ACCEPT")
+                        .readSymbol(null)
+                        .toState("START")
+                        .build()
+        );
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("START")
+                        .readSymbol('a')
+                        .toState("ACCEPT")
+                        .build()
+        );
+        instance.addTransition(
+                Transition.builder()
+                        .fromState("ACCEPT")
+                        .readSymbol('b')
+                        .toState("START")
+                        .build()
+        );
+
+        instance.addAcceptingState("START");
+        instance.finalizeAutomaton();
+
+        assertTrue(instance.acceptsWord(""));
+        assertTrue(instance.acceptsWord("a"));
+        assertTrue(instance.acceptsWord("ab"));
+        assertTrue(instance.acceptsWord("b"));
+        assertTrue(instance.acceptsWord("ba"));
+        assertFalse(instance.acceptsWord("d"));
+    }
+
+    @Test
+    public void concatenationTest1() {
         var nfaA = buildCharLanguage('a');
 
         var testInstance = nfaA.concatenation(nfaA);
@@ -320,6 +407,19 @@ public class CustomTests {
         assertFalse(testInstance.acceptsWord("aaa"));
     }
 
+    @Test
+    public void concatenationTest2() {
+        var nfaA = buildCharLanguage('a');
+        var nfaB = buildCharLanguage('b');
+
+        var testInstance = nfaA.concatenation(nfaB);
+
+        assertFalse(testInstance.acceptsWord("a"));
+        assertTrue(testInstance.acceptsWord("ab"));
+        assertFalse(testInstance.acceptsWord("aaa"));
+    }
+
+    /*
     @Test
     public void union1Test() {
         var nfaA = buildCharLanguage('a');

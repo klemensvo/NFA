@@ -66,7 +66,50 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA union(NFA other) throws FinalizedStateException {
-        return null;
+        if (!isFinalized() || !other.isFinalized()) {
+            throw new FinalizedStateException();
+        }
+
+        //creating new NFA
+        NFAImpl unionNFA = new NFAImpl("q0_union_start");
+
+        //adding states from this
+        unionNFA.states.addAll(this.states);
+        unionNFA.acceptingStates.addAll(this.acceptingStates);
+        unionNFA.transitions.putAll(this.transitions);
+
+        //adding states from other
+        for (String state : other.getStates()) {
+            //changing state name to avoid conflicts
+            String newState = "q_union_" + state;
+
+            //adding new state to union
+            unionNFA.states.add(newState);
+
+            //creating new set for transitions from other
+            Set<Transition> transitionsFromOther = new HashSet<>();
+            for (Transition transition : other.getTransitions()) {
+                if (transition.fromState().equals(state)) {
+                    Transition newTransition = new Transition(newState, transition.readSymbol(), transition.toState());
+                    transitionsFromOther.add(newTransition);
+                }
+            }
+
+            //adding states from other to union
+            unionNFA.transitions.put(newState, transitionsFromOther);
+
+            //marking new state as accepting if it is accepting in other
+            if (other.getAcceptingStates().contains(state)) {
+                unionNFA.acceptingStates.add(newState);
+            }
+        }
+
+        //adding new start state and epsilon transition to start states of this and other
+        unionNFA.states.add("q0_union_start");
+        unionNFA.addTransition(new Transition("q0_union_start", null, this.initialState));
+        unionNFA.addTransition(new Transition("q0_union_start", null, "q_union_" + other.getInitialState()));
+
+        return unionNFA;
     }
 
     @Override

@@ -6,6 +6,6 @@ import ab1.NFAFactory;
 public class NFAFactoryImpl implements NFAFactory {
     @Override
     public NFA buildNFA(String startState) {
-        return new NFAImpl();
+        return new NFAImpl(startState);
     }
 }

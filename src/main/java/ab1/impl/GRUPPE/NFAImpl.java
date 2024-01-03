@@ -204,8 +204,39 @@ public class NFAImpl implements NFA {
 
     @Override
     public boolean isFinite() {
-        return false;
+
+        Set<String> visitedStates = new HashSet<>();
+        Set<String> stack = new HashSet<>();
+        stack.add(initialState);
+
+        while (!stack.isEmpty()) {
+            String currentState = stack.iterator().next();
+            stack.remove(currentState);
+
+            visitedStates.add(currentState);
+
+            //check transitions for current state
+            Set<Transition> stateTransitions = transitions.getOrDefault(currentState, Collections.emptySet());
+            for (Transition transition : stateTransitions) {
+
+                //if toState has not been visited, add to stack
+                String toState = transition.toState();
+                if (!visitedStates.contains(toState)) {
+                    stack.add(toState);
+                }
+            }
+        }
+
+        //check if an accepting state is reached
+        for (String state : visitedStates) {
+            if (acceptingStates.contains(state)) {
+                return true; //finite
+            }
+        }
+
+        return false; //infinite
     }
+
 
     @Override
     public boolean acceptsWord(String word) {

@@ -102,14 +102,12 @@ public class NFAImpl implements NFA {
         for (String otherNfaState : otherNFA.getStates()) {
             String uniqueFromState = "second_" + otherNfaState;
             concatenatedNFA.states.add(uniqueFromState);
-            System.out.println("concatenatedNFA states: " + concatenatedNFA.getStates());
 
             // find all transitions from 'state':
             Set<Transition> otherTransitions = new HashSet<>(otherNFA.getTransitions());
             Set<Transition> otherStateTransitions = otherTransitions.stream()
                     .filter(transition -> transition.fromState().equals(otherNfaState))
                     .collect(Collectors.toSet());
-            System.out.println("concatenatedNFA transitions: " + concatenatedNFA.getTransitions());
 
             // iterate through all transitions from 'state':
             for (Transition transition : otherStateTransitions) {
@@ -122,7 +120,6 @@ public class NFAImpl implements NFA {
         // clear all acceptingStates and only accept
         // accepting states of the second NFA
         concatenatedNFA.acceptingStates.clear();
-        System.out.println("acceptingStates cleared: " + concatenatedNFA.getAcceptingStates());
         for (String acceptingState : otherNFA.getAcceptingStates()) {
             concatenatedNFA.acceptingStates.add("second_" + acceptingState);
         }

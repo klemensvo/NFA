@@ -114,8 +114,59 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA intersection(NFA other) throws FinalizedStateException {
-        return null;
+        if (!isFinalized() || !other.isFinalized()) {
+            throw new FinalizedStateException();
+        }
+
+        //creating new NFA for intersection
+        NFAImpl intersectionNFA = new NFAImpl("q_intersection_" + this.initialState + "_" + other.getInitialState());
+
+        //adding states from this
+        intersectionNFA.states.addAll(this.states);
+        intersectionNFA.acceptingStates.addAll(this.acceptingStates);
+        intersectionNFA.transitions.putAll(this.transitions);
+
+        //adding states from other
+        for (String state : other.getStates()) {
+            // Changing state name to avoid conflicts
+            String newState = "q_intersection_" + state;
+
+            //adding new state to intersection
+            intersectionNFA.states.add(newState);
+
+            //adding transitions from other to intersection
+            Set<Transition> transitionsFromOther = new HashSet<>();
+            for (Transition transition : other.getTransitions()) {
+                if (transition.fromState().equals(state)) {
+                    Transition newTransition = new Transition(newState, transition.readSymbol(), transition.toState());
+                    transitionsFromOther.add(newTransition);
+                }
+            }
+
+            intersectionNFA.transitions.put(newState, transitionsFromOther);
+
+            //marking new state as accepting if it is accepting in both
+            if (other.getAcceptingStates().contains(state) && this.acceptingStates.contains(state)) {
+                intersectionNFA.acceptingStates.add(newState);
+            }
+        }
+
+        //adding transitions from the start state of other
+        String initialStateOfOther = "q_intersection_" + other.getInitialState();
+        Set<Transition> transitionsFromOtherInitial = new HashSet<>();
+        for (Transition transition : other.getTransitions()) {
+            if (transition.fromState().equals(other.getInitialState())) {
+                Transition newTransition = new Transition(initialStateOfOther, transition.readSymbol(), transition.toState());
+                transitionsFromOtherInitial.add(newTransition);
+            }
+        }
+        intersectionNFA.transitions.put(initialStateOfOther, transitionsFromOtherInitial);
+
+        return intersectionNFA;
     }
+
+
+
 
     @Override
     public NFA concatenation(NFA otherNFA) throws FinalizedStateException {

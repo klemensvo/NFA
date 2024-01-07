@@ -162,9 +162,7 @@ public class NFAImpl implements NFA {
         }
         intersectionNFA.transitions.put(initialStateOfOther, transitionsFromOtherInitial);*/
 
-        NFA intersectionNFA = this.complement().union(other.complement()).complement();
-
-        return intersectionNFA;
+        return this.complement().union(other.complement()).complement();
     }
 
 

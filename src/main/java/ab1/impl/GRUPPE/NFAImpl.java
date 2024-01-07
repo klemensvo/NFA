@@ -136,17 +136,109 @@ public class NFAImpl implements NFA {
 
     @Override
     public NFA kleeneStar() throws FinalizedStateException {
-        return null;
+        if (!this.isFinalized()) {
+            throw new FinalizedStateException("NFA must be finalized!");
+        }
+        //Create new NFA with new start point and copy settings
+        NFAImpl kleeneStarNFA = new NFAImpl("NewStart");
+        kleeneStarNFA.states.addAll(this.states);
+        kleeneStarNFA.transitions.putAll(this.transitions);
+        kleeneStarNFA.acceptingStates.addAll(this.acceptingStates);
+
+        //New start point properties
+        kleeneStarNFA.addTransition(new Transition("NewStart",null,this.initialState));
+        kleeneStarNFA.addAcceptingState("NewStart");
+
+        //Add null transitions from every old accepting to new start state
+        for (String state : this.acceptingStates){
+            kleeneStarNFA.addTransition(new Transition(state,null, kleeneStarNFA.initialState));
+        }
+        kleeneStarNFA.finalizeAutomaton();
+
+        return kleeneStarNFA;
     }
 
     @Override
     public NFA plusOperator() throws FinalizedStateException {
-        return null;
+        if (!this.isFinalized()) {
+            throw new FinalizedStateException("NFA must be finalized!");
+        }
+        //Create kleene Star NFA
+        NFA kleene = kleeneStar();
+        //Concatenate current NFA with kleene NFA
+        return concatenation(kleene);
     }
 
     @Override
     public NFA complement() throws FinalizedStateException {
-        return null;
+        if (!this.isFinalized()) {
+            throw new FinalizedStateException("NFA must be finalized!");
+        }
+        NFAImpl copy = new NFAImpl(initialState);
+        copy.acceptingStates.addAll(acceptingStates);
+        copy.states.addAll(states);
+        copy.transitions.putAll(transitions);
+
+        String complementNFAIntitialState;
+        String complementNFAAcceptingSate;
+
+        //Add new Accepting State -> Convert multiple accepting states to one
+        if(copy.acceptingStates.size()>1){
+            for(String state : copy.acceptingStates){
+                copy.addTransition(new Transition(state,null,"NewStart"));
+            }
+            copy.acceptingStates.clear();
+            copy.addAcceptingState("NewStart");
+            complementNFAIntitialState = "NewStart"; //complementNFA needs this as start point
+            complementNFAAcceptingSate = copy.initialState;; // Old start point -> new accepting state
+        } else {
+            complementNFAIntitialState = copy.acceptingStates.iterator().next(); // Old accepting state is new start point
+            complementNFAAcceptingSate = copy.initialState;
+        }
+
+        NFAImpl complementNFA = new NFAImpl(complementNFAIntitialState);
+        complementNFA.states.addAll(copy.states);
+        complementNFA.addAcceptingState(complementNFAAcceptingSate);
+
+        //Reverse Tansition connection
+        Map<String, Set<Transition>> newTransitions = getNewTransitions(copy);
+        complementNFA.transitions.putAll(newTransitions);
+
+
+        complementNFA.finalizeAutomaton();
+/*
+        NFAImpl complementNFA = new NFAImpl(this.getInitialState());
+        //Copy transitions and states
+        complementNFA.transitions.putAll(this.transitions);
+        complementNFA.states.addAll(this.states);
+        //Remove accepting states from set of all states
+        Set<String> newAcceptingStates = this.states;
+        newAcceptingStates.removeIf(acceptingStates::contains);
+        //Add complement accepting states to new NFA
+        complementNFA.acceptingStates.addAll(newAcceptingStates);
+*/
+
+        return complementNFA;
+    }
+
+    private static Map<String, Set<Transition>> getNewTransitions(NFAImpl copy) {
+        Map<String, Set<Transition>> newTransitions = new HashMap<>();
+
+        //Reverse Transition direction
+        for(Map.Entry<String, Set<Transition>> transition : copy.transitions.entrySet()){
+                Set<Transition> values = transition.getValue();
+                Set<Transition> temp = new HashSet<>();
+                for(Transition a : values){
+                    String from = a.fromState();
+                    String to = a.toState();
+                    if(!from.equals(to)){
+                        Transition newTransition = new Transition(to, a.readSymbol(), from);
+                        temp.add(newTransition);
+                    }
+                }
+                newTransitions.put(transition.getKey(),temp);
+        }
+        return newTransitions;
     }
 
     @Override

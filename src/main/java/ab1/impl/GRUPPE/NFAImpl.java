@@ -118,13 +118,13 @@ public class NFAImpl implements NFA {
             throw new FinalizedStateException();
         }
 
-        //creating new NFA for intersection
+        /*//creating new NFA for intersection
         NFAImpl intersectionNFA = new NFAImpl("q_intersection_" + this.initialState + "_" + other.getInitialState());
 
         //adding states from this
         intersectionNFA.states.addAll(this.states);
         intersectionNFA.acceptingStates.addAll(this.acceptingStates);
-        intersectionNFA.transitions.putAll(this.transitions);
+        //intersectionNFA.transitions.putAll(this.transitions);
 
         //adding states from other
         for (String state : other.getStates()) {
@@ -160,7 +160,9 @@ public class NFAImpl implements NFA {
                 transitionsFromOtherInitial.add(newTransition);
             }
         }
-        intersectionNFA.transitions.put(initialStateOfOther, transitionsFromOtherInitial);
+        intersectionNFA.transitions.put(initialStateOfOther, transitionsFromOtherInitial);*/
+
+        NFA intersectionNFA = this.complement().union(other.complement()).complement();
 
         return intersectionNFA;
     }

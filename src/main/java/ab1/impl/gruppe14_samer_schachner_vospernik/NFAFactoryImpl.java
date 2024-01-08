@@ -1,4 +1,4 @@
-package ab1.impl.GRUPPE;
+package ab1.impl.gruppe14_samer_schachner_vospernik;
 
 import ab1.NFA;
 import ab1.NFAFactory;

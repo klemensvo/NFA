@@ -1,4 +1,4 @@
-package ab1.impl.GRUPPE;
+package ab1.impl.gruppe14_samer_schachner_vospernik;
 
 import ab1.FinalizedStateException;
 import ab1.NFA;
@@ -240,7 +240,7 @@ public class NFAImpl implements NFA {
             copy.acceptingStates.clear();
             copy.addAcceptingState("NewStart");
             complementNFAIntitialState = "NewStart"; //complementNFA needs this as start point
-            complementNFAAcceptingSate = copy.initialState;; // Old start point -> new accepting state
+            complementNFAAcceptingSate = copy.initialState; // Old start point -> new accepting state
         } else {
             complementNFAIntitialState = copy.acceptingStates.iterator().next(); // Old accepting state is new start point
             complementNFAAcceptingSate = copy.initialState;

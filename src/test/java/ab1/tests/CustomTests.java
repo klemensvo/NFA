@@ -415,18 +415,6 @@ public class CustomTests {
         assertFalse(testInstance.acceptsWord("aaa"));
     }
 
-    @Test
-    public void unionTest1() {
-        var nfaA = buildCharLanguage('a');
-        var nfaB = buildCharLanguage('b');
-
-        var testInstance = nfaA.union(nfaB);
-
-        assertTrue(testInstance.acceptsWord("a"));
-        assertTrue(testInstance.acceptsWord("b"));
-        assertFalse(testInstance.acceptsWord("ab"));
-        assertFalse(testInstance.acceptsWord("ba"));
-    }
 
     /*
     @Test
@@ -574,7 +562,20 @@ public class CustomTests {
     }
 
     @Test
-    public void unionTest1() throws FinalizedStateException {
+    public void unionTest1() {
+        var nfaA = buildCharLanguage('a');
+        var nfaB = buildCharLanguage('b');
+
+        var testInstance = nfaA.union(nfaB);
+
+        assertTrue(testInstance.acceptsWord("a"));
+        assertTrue(testInstance.acceptsWord("b"));
+        assertFalse(testInstance.acceptsWord("ab"));
+        assertFalse(testInstance.acceptsWord("ba"));
+    }
+
+    @Test
+    public void unionTest2() throws FinalizedStateException {
         var nfa1 = factory.buildNFA("q0");
         nfa1.finalizeAutomaton();
         var nfa2 = factory.buildNFA("r0");
@@ -590,7 +591,7 @@ public class CustomTests {
     }
 
     @Test
-    public void unionTest2() throws FinalizedStateException {
+    public void unionTest3() throws FinalizedStateException {
         var nfa1 = factory.buildNFA("q0");
         var nfa2 = factory.buildNFA("r0");
 

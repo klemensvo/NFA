@@ -119,8 +119,11 @@ public class NFAImpl implements NFA {
         if (!isFinalized() || !other.isFinalized()) {
             throw new FinalizedStateException();
         }
-        
-        return this.complement().union(other.complement()).complement();
+
+        NFA intersection = this.complement().union(other.complement()).complement();
+        intersection.finalizeAutomaton();
+
+        return intersection;
     }
 
 

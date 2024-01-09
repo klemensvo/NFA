@@ -614,4 +614,14 @@ public class CustomTests {
         assertTrue(unionNFA.getAcceptingStates().contains("q_union_r1"));
         assertTrue(unionNFA.isFinalized());
     }
+
+    @Test
+    public void intersectionTest1() throws FinalizedStateException {
+        var nfa1 = buildCharLanguage('a');
+        var nfa2 = buildCharLanguage('b');
+
+        NFA intersectionNFA = nfa1.intersection(nfa2);
+
+        assertTrue(intersectionNFA.isFinalized());
+    }
 }

@@ -587,6 +587,7 @@ public class CustomTests {
         assertTrue(unionNFA.getStates().contains("q_union_r0"));
         assertFalse(unionNFA.getAcceptingStates().contains("q0"));
         assertFalse(unionNFA.getAcceptingStates().contains("r0"));
+        assertTrue(unionNFA.isFinalized());
     }
 
     @Test
@@ -611,6 +612,6 @@ public class CustomTests {
         assertTrue(unionNFA.getStates().contains("q_union_r1"));
         assertTrue(unionNFA.getAcceptingStates().contains("q1"));
         assertTrue(unionNFA.getAcceptingStates().contains("q_union_r1"));
-        assertFalse(unionNFA.isFinalized());
+        assertTrue(unionNFA.isFinalized());
     }
 }

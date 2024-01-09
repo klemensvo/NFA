@@ -109,6 +109,8 @@ public class NFAImpl implements NFA {
         unionNFA.addTransition(new Transition("q0_union_start", null, this.initialState));
         unionNFA.addTransition(new Transition("q0_union_start", null, "q_union_" + other.getInitialState()));
 
+        unionNFA.finalizeAutomaton();
+
         return unionNFA;
     }
 

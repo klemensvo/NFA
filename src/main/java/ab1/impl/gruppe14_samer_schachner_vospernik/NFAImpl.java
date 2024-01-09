@@ -234,7 +234,7 @@ public class NFAImpl implements NFA {
         copy.states.addAll(states);
         copy.transitions.putAll(transitions);
 
-        String complementNFAIntitialState;
+        String complementNFAInitialState;
         String complementNFAAcceptingSate;
 
         //Add new Accepting State -> Convert multiple accepting states to one
@@ -244,14 +244,14 @@ public class NFAImpl implements NFA {
             }
             copy.acceptingStates.clear();
             copy.addAcceptingState("NewStart");
-            complementNFAIntitialState = "NewStart"; //complementNFA needs this as start point
+            complementNFAInitialState = "NewStart"; //complementNFA needs this as start point
             complementNFAAcceptingSate = copy.initialState; // Old start point -> new accepting state
         } else {
-            complementNFAIntitialState = copy.acceptingStates.iterator().next(); // Old accepting state is new start point
+            complementNFAInitialState = copy.acceptingStates.iterator().next(); // Old accepting state is new start point
             complementNFAAcceptingSate = copy.initialState;
         }
 
-        NFAImpl complementNFA = new NFAImpl(complementNFAIntitialState);
+        NFAImpl complementNFA = new NFAImpl(complementNFAInitialState);
         complementNFA.states.addAll(copy.states);
         complementNFA.addAcceptingState(complementNFAAcceptingSate);
 

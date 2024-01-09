@@ -624,4 +624,60 @@ public class CustomTests {
 
         assertTrue(intersectionNFA.isFinalized());
     }
+
+    @Test
+    public void isFiniteTest1() throws FinalizedStateException {
+        var nfa1 = buildCharLanguage('a');
+        var nfa2 = buildCharLanguage('b');
+
+        NFA unionNFA = nfa1.union(nfa2);
+
+        assertTrue(unionNFA.isFinite());
+    }
+
+    @Test
+    public void isFiniteTest2() throws FinalizedStateException {
+        var nfa1 = buildCharLanguage('a');
+        var nfa2 = buildCharLanguage('b');
+
+        NFA concatNFA = nfa1.concatenation(nfa2);
+
+        assertTrue(concatNFA.isFinite());
+    }
+
+    @Test
+    public void isFiniteTest3() throws FinalizedStateException {
+        var nfa1 = buildCharLanguage('a');
+
+        NFA kleeneNFA = nfa1.kleeneStar();
+
+        assertTrue(kleeneNFA.isFinite());
+    }
+
+    @Test
+    public void isFiniteTest4() throws FinalizedStateException {
+        var nfa1 = factory.buildNFA("q0");
+        var nfa2 = factory.buildNFA("r0");
+
+        nfa1.finalizeAutomaton();
+        nfa2.finalizeAutomaton();
+
+        NFA unionNFA = nfa1.union(nfa2);
+
+        assertFalse(unionNFA.isFinite());
+    }
+
+    @Test
+    public void isFiniteTest5() throws FinalizedStateException {
+        var nfa1 = factory.buildNFA("q0");
+        var nfa2 = factory.buildNFA("r0");
+
+        nfa1.finalizeAutomaton();
+        nfa2.finalizeAutomaton();
+
+        NFA concatNFA = nfa1.concatenation(nfa2);
+
+        assertFalse(concatNFA.isFinite());
+    }
+
 }

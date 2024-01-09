@@ -120,10 +120,8 @@ public class CustomTests {
         instance.finalizeAutomaton();
     }
 
-
-    /*
     @Test
-    public void finalize4Test() {
+    public void finalizeTest4() {
         var instance = factory.buildNFA("START");
 
         assertThrows(
@@ -133,7 +131,7 @@ public class CustomTests {
     }
 
     @Test
-    public void finalize5Test() {
+    public void finalizeTest5() {
         var instance = factory.buildNFA("START");
 
         assertThrows(
@@ -143,7 +141,7 @@ public class CustomTests {
     }
 
     @Test
-    public void finalize6Test() {
+    public void finalizeTest6() {
         var instance = factory.buildNFA("START");
 
         assertThrows(
@@ -153,7 +151,7 @@ public class CustomTests {
     }
 
     @Test
-    public void finalize7Test() {
+    public void finalizeTest7() {
         var instance = factory.buildNFA("START");
 
         assertThrows(
@@ -163,7 +161,7 @@ public class CustomTests {
     }
 
     @Test
-    public void finalize8Test() {
+    public void finalizeTest8() {
         var instance = factory.buildNFA("START");
 
         assertThrows(
@@ -173,7 +171,7 @@ public class CustomTests {
     }
 
     @Test
-    public void finalize9Test() {
+    public void finalizeTest9() {
         var instance = factory.buildNFA("START");
 
         assertThrows(
@@ -181,8 +179,6 @@ public class CustomTests {
                 () -> instance.union(instance)
         );
     }
-    */
-
 
     @Test
     public void languageTest1() {
@@ -419,9 +415,8 @@ public class CustomTests {
         assertFalse(testInstance.acceptsWord("aaa"));
     }
 
-    /*
     @Test
-    public void union1Test() {
+    public void unionTest1() {
         var nfaA = buildCharLanguage('a');
         var nfaB = buildCharLanguage('b');
 
@@ -433,8 +428,9 @@ public class CustomTests {
         assertFalse(testInstance.acceptsWord("ba"));
     }
 
+    /*
     @Test
-    public void intersection1Test() {
+    public void intersectionTest1() {
         var nfaA = buildCharLanguage('a');
         var nfaB = buildCharLanguage('b');
 
@@ -446,8 +442,9 @@ public class CustomTests {
         assertFalse(testInstance.acceptsWord("ba"));
     }
 
+
     @Test
-    public void intersection2Test() {
+    public void intersectionTest2() {
         var nfaA = buildCharLanguage('a');
         var nfaB = buildCharStarLanguage('a');
 
@@ -461,9 +458,10 @@ public class CustomTests {
         assertFalse(testInstance.acceptsWord("ab"));
         assertFalse(testInstance.acceptsWord("ba"));
     }
+    */
 
     @Test
-    public void star1Test() {
+    public void starTest1() {
         var nfaA = buildCharLanguage('a');
 
         var testInstance = nfaA.kleeneStar();
@@ -479,7 +477,7 @@ public class CustomTests {
     }
 
     @Test
-    public void plus1Test() {
+    public void plusTest1() {
         var nfaA = buildCharLanguage('a');
 
         var testInstance = nfaA.plusOperator();
@@ -495,7 +493,7 @@ public class CustomTests {
     }
 
     @Test
-    public void plus2Test() {
+    public void plusTest2() {
         var nfaA = buildCharLanguage('a');
 
         var testInstance = nfaA.plusOperator();
@@ -510,8 +508,9 @@ public class CustomTests {
         assertFalse(testInstance.acceptsWord("ba"));
     }
 
+    /*
     @Test
-    public void complement1Test() {
+    public void complementTest1() {
         var nfaA = buildCharLanguage('a');
 
         var testInstance = nfaA.complement();
@@ -525,21 +524,21 @@ public class CustomTests {
         assertTrue(testInstance.acceptsWord("ab"));
         assertTrue(testInstance.acceptsWord("ba"));
     }
+     */
 
     @Test
-    public void finite1Test() {
+    public void finiteTest1() {
         var nfaA = buildCharLanguage('a');
 
         assertTrue(nfaA.isFinite());
     }
 
     @Test
-    public void finite2Test() {
+    public void finiteTest2() {
         var nfaA = buildCharLanguage('a');
 
         assertFalse(nfaA.complement().isFinite());
     }
-    */
 
 
     private NFA buildCharStarLanguage(char c) {

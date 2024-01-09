@@ -573,4 +573,44 @@ public class CustomTests {
 
         return instance;
     }
+
+    @Test
+    public void unionTest1() throws FinalizedStateException {
+        var nfa1 = factory.buildNFA("q0");
+        nfa1.finalizeAutomaton();
+        var nfa2 = factory.buildNFA("r0");
+        nfa2.finalizeAutomaton();
+
+        var unionNFA = nfa1.union(nfa2);
+
+        assertTrue(unionNFA.getStates().contains("q0"));
+        assertTrue(unionNFA.getStates().contains("q_union_r0"));
+        assertFalse(unionNFA.getAcceptingStates().contains("q0"));
+        assertFalse(unionNFA.getAcceptingStates().contains("r0"));
+    }
+
+    @Test
+    public void unionTest2() throws FinalizedStateException {
+        var nfa1 = factory.buildNFA("q0");
+        var nfa2 = factory.buildNFA("r0");
+
+        nfa1.addTransition(new Transition("q0", 'a', "q1"));
+        nfa1.addAcceptingState("q1");
+
+        nfa2.addTransition(new Transition("r0", 'b', "r1"));
+        nfa2.addAcceptingState("r1");
+
+        nfa1.finalizeAutomaton();
+        nfa2.finalizeAutomaton();
+
+        NFA unionNFA = nfa1.union(nfa2);
+
+        assertTrue(unionNFA.getStates().contains("q0"));
+        assertTrue(unionNFA.getStates().contains("q_union_r0"));
+        assertTrue(unionNFA.getStates().contains("q1"));
+        assertTrue(unionNFA.getStates().contains("q_union_r1"));
+        assertTrue(unionNFA.getAcceptingStates().contains("q1"));
+        assertTrue(unionNFA.getAcceptingStates().contains("q_union_r1"));
+        assertFalse(unionNFA.isFinalized());
+    }
 }

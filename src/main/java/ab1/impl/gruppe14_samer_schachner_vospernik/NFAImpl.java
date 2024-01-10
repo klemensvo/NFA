@@ -117,11 +117,9 @@ public class NFAImpl implements NFA {
         if (!isFinalized() || !other.isFinalized()) {
             throw new FinalizedStateException();
         }
-        
+
         return this.complement().union(other.complement()).complement();
     }
-
-
 
 
     @Override
@@ -196,12 +194,12 @@ public class NFAImpl implements NFA {
         kleeneStarNFA.acceptingStates.addAll(this.acceptingStates);
 
         //New start point properties
-        kleeneStarNFA.addTransition(new Transition("NewStart",null,this.initialState));
+        kleeneStarNFA.addTransition(new Transition("NewStart", null, this.initialState));
         kleeneStarNFA.addAcceptingState("NewStart");
 
         //Add null transitions from every old accepting to new start state
-        for (String state : this.acceptingStates){
-            kleeneStarNFA.addTransition(new Transition(state,null, kleeneStarNFA.initialState));
+        for (String state : this.acceptingStates) {
+            kleeneStarNFA.addTransition(new Transition(state, null, kleeneStarNFA.initialState));
         }
         kleeneStarNFA.finalizeAutomaton();
 
@@ -224,39 +222,13 @@ public class NFAImpl implements NFA {
         if (!this.isFinalized()) {
             throw new FinalizedStateException("NFA must be finalized!");
         }
-        NFAImpl copy = new NFAImpl(initialState);
-        copy.acceptingStates.addAll(acceptingStates);
-        copy.states.addAll(states);
-        copy.transitions.putAll(transitions);
 
-        String complementNFAIntitialState;
-        String complementNFAAcceptingSate;
+        // "Reversing the transitions of a NFA and switching initial and final states produces an NFA for the reversal of the original language."
+        //Brzozowski's algorithm -> partial implementation, did not get it to work correctly
+        NFAImpl complementNFA = brzozowski();
 
-        //Add new Accepting State -> Convert multiple accepting states to one
-        if(copy.acceptingStates.size()>1){
-            for(String state : copy.acceptingStates){
-                copy.addTransition(new Transition(state,null,"NewStart"));
-            }
-            copy.acceptingStates.clear();
-            copy.addAcceptingState("NewStart");
-            complementNFAIntitialState = "NewStart"; //complementNFA needs this as start point
-            complementNFAAcceptingSate = copy.initialState; // Old start point -> new accepting state
-        } else {
-            complementNFAIntitialState = copy.acceptingStates.iterator().next(); // Old accepting state is new start point
-            complementNFAAcceptingSate = copy.initialState;
-        }
-
-        NFAImpl complementNFA = new NFAImpl(complementNFAIntitialState);
-        complementNFA.states.addAll(copy.states);
-        complementNFA.addAcceptingState(complementNFAAcceptingSate);
-
-        //Reverse Tansition connection
-        Map<String, Set<Transition>> newTransitions = getNewTransitions(copy);
-        complementNFA.transitions.putAll(newTransitions);
-
-
-        complementNFA.finalizeAutomaton();
-/*
+        /*
+        //Direct switch of accepting states -> not correct
         NFAImpl complementNFA = new NFAImpl(this.getInitialState());
         //Copy transitions and states
         complementNFA.transitions.putAll(this.transitions);
@@ -266,8 +238,41 @@ public class NFAImpl implements NFA {
         newAcceptingStates.removeIf(acceptingStates::contains);
         //Add complement accepting states to new NFA
         complementNFA.acceptingStates.addAll(newAcceptingStates);
-*/
+        */
+        complementNFA.finalizeAutomaton();
 
+        return complementNFA;
+    }
+
+    private NFAImpl brzozowski() {
+        NFAImpl copy = new NFAImpl(initialState);
+        copy.acceptingStates.addAll(acceptingStates);
+        copy.states.addAll(states);
+        copy.transitions.putAll(transitions);
+
+        String complementNFAIntitialState;
+        String complementNFAAcceptingSate;
+
+        //Add new Accepting State -> Convert multiple accepting states to one
+        if (copy.acceptingStates.size() > 1) {
+            for (String state : copy.acceptingStates) {
+                copy.addTransition(new Transition(state, null, "NewStart"));
+            }
+            copy.acceptingStates.clear();
+            copy.addAcceptingState("NewStart");
+            complementNFAIntitialState = "NewStart"; //complementNFA needs this as start point
+        } else {
+            complementNFAIntitialState = copy.acceptingStates.iterator().next(); // Old accepting state is new start point
+        }
+        complementNFAAcceptingSate = copy.initialState; // Old start point -> new accepting state
+
+        NFAImpl complementNFA = new NFAImpl(complementNFAIntitialState);
+        complementNFA.states.addAll(copy.states);
+        complementNFA.addAcceptingState(complementNFAAcceptingSate);
+
+        //Reverse Tansition connection
+        Map<String, Set<Transition>> newTransitions = getNewTransitions(copy);
+        complementNFA.transitions.putAll(newTransitions);
         return complementNFA;
     }
 
@@ -275,18 +280,18 @@ public class NFAImpl implements NFA {
         Map<String, Set<Transition>> newTransitions = new HashMap<>();
 
         //Reverse Transition direction
-        for(Map.Entry<String, Set<Transition>> transition : copy.transitions.entrySet()){
-                Set<Transition> values = transition.getValue();
-                Set<Transition> temp = new HashSet<>();
-                for(Transition a : values){
-                    String from = a.fromState();
-                    String to = a.toState();
-                    if(!from.equals(to)){
-                        Transition newTransition = new Transition(to, a.readSymbol(), from);
-                        temp.add(newTransition);
-                    }
+        for (Map.Entry<String, Set<Transition>> transition : copy.transitions.entrySet()) {
+            Set<Transition> values = transition.getValue();
+            Set<Transition> temp = new HashSet<>();
+            for (Transition a : values) {
+                String from = a.fromState();
+                String to = a.toState();
+                if (!from.equals(to)) {
+                    Transition newTransition = new Transition(to, a.readSymbol(), from);
+                    temp.add(newTransition);
                 }
-                newTransitions.put(transition.getKey(),temp);
+            }
+            newTransitions.put(transition.getKey(), temp);
         }
         return newTransitions;
     }
